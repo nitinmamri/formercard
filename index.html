@@ -1,502 +1,1056 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AgriStack Farmer Card</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriStack Farmer Card · QR with all fields</title>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
 
-<style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial,sans-serif;
-}
-body{
-  background:#f0f0f0;
-  padding:20px;
-}
-.form-box{
-  max-width:1100px;
-  margin:auto;
-  background:#fff;
-  padding:20px;
-  border-radius:10px;
-  box-shadow:0 0 10px rgba(0,0,0,.15);
-  margin-bottom:20px;
-}
-textarea{
-  width:100%;
-  height:250px;
-  padding:10px;
-  border:1px solid #ccc;
-  border-radius:5px;
-}
-button{
-  padding:10px 20px;
-  background:#1b5e20;
-  color:#fff;
-  border:none;
-  border-radius:5px;
-  cursor:pointer;
-  margin-top:10px;
-  margin-right:8px;
-}
-select{
-  padding:8px 10px;
-  border:1px solid #ccc;
-  border-radius:5px;
-  margin-top:10px;
-}
-input[type="file"]{
-  margin-top:10px;
-}
-.card-container{
-  display:none;
-  justify-content:center;
-  gap:30px;
-  flex-wrap:wrap;
-}
-.card{
-  width:520px;
-  min-height:360px;
-  max-height:fit-content;
-  background:#fff;
-  border:3px solid #1b5e20;
-  border-radius:20px;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-}
-.header{
-  background:#1b5e20;
-  color:#fff;
-  padding:10px 15px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:18px;
-  font-weight:bold;
-}
-.header img{
-  height:30px;
-  width:auto;
-  object-fit:contain;
-}
-.content{
-  padding:15px;
-  flex:1;
-}
-.front-flex{
-  display:flex;
-  gap:15px;
-}
-.photo{
-  width:130px;
-  height:160px;
-  border:1px solid #999;
-  object-fit:cover;
-  background:#f7f7f7;
-  flex-shrink:0;
-}
-.details{
-  font-size:15px;
-  line-height:1.7;
-  overflow:hidden;
-}
-.name{
-  font-size:28px;
-  font-weight:bold;
-  color:#1b5e20;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.farmer-id{
-  background:#1b5e20;
-  color:#fff;
-  text-align:center;
-  padding:12px;
-  font-size:18px;
-  font-weight:bold;
-}
-.address{
-  font-size:15px;
-  line-height:1.3;
-  margin-bottom:3px;
-  font-weight:bold;
-  color:#1b5e20;
-}
-.land-title{
-  font-size:16px;
-  font-weight:bold;
-  color:#1b5e20;
-  margin-bottom:5px;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-  table-layout:fixed;
-  font-size:inherit;
-}
-th,td{
-  border:1px solid #ccc;
-  padding:6px 4px;
-  font-size:clamp(7px, 1.1vw, 11px);
-  text-align:center;
-  vertical-align:top;
-  white-space:normal;
-  word-break:break-word;
-  overflow-wrap:anywhere;
-  overflow:visible;
-  text-overflow:clip;
-}
-th{
-  background:#e8f5e9;
-  font-weight:bold;
-}
+    body{
+      background:#f0f0f0;
+      padding:20px;
+    }
 
-@media print{
-  @page{
-    size:A4 portrait;
-    margin:5mm;
-  }
+    .form-box{
+      max-width:1100px;
+      margin:auto;
+      background:#fff;
+      padding:20px;
+      border-radius:10px;
+      box-shadow:0 0 10px rgba(0,0,0,.15);
+      margin-bottom:20px;
+    }
 
-  html, body{
-    width:210mm;
-    height:297mm;
-    margin:0 !important;
-    padding:0 !important;
-    background:#fff !important;
-    -webkit-print-color-adjust:exact;
-    print-color-adjust:exact;
-  }
+    textarea{
+      width:100%;
+      height:250px;
+      padding:10px;
+      border:1px solid #ccc;
+      border-radius:5px;
+      font-size:14px;
+    }
 
-  .form-box{
-    display:none !important;
-  }
+    button{
+      padding:10px 20px;
+      background:#1b5e20;
+      color:#fff;
+      border:none;
+      border-radius:5px;
+      cursor:pointer;
+      margin-top:10px;
+      margin-right:8px;
+    }
 
-  .card-container{
-    display:flex !important;
-    flex-direction:row !important;
-    flex-wrap:nowrap !important;
-    justify-content:flex-start !important;
-    align-items:flex-start !important;
-    gap:3mm !important;
-    width:100% !important;
-    margin:0 !important;
-    padding:0 !important;
-  }
+    select{
+      padding:8px 10px;
+      border:1px solid #ccc;
+      border-radius:5px;
+      margin-top:10px;
+    }
 
-  .card{
-    width:96mm !important;
-    height:62mm !important;
-    min-height:62mm !important;
-    max-height:62mm !important;
-    margin:0 !important;
-    flex:0 0 auto !important;
-    overflow:hidden !important;
-    box-shadow:none !important;
-    page-break-inside:avoid;
-    break-inside:avoid;
-  }
+    input[type="file"]{
+      margin-top:10px;
+    }
 
-  .header{
-    height:11mm !important;
-    min-height:11mm !important;
-    max-height:11mm !important;
-    padding:2mm 3mm !important;
-    font-size:8pt !important;
-    line-height:1 !important;
-  }
+    .card-container{
+      display:none;
+      justify-content:center;
+      gap:30px;
+      flex-wrap:wrap;
+    }
 
-  .header img{
-    height:8mm !important;
-    width:auto !important;
-    object-fit:contain !important;
-  }
+    .card{
+      width:520px;
+      min-height:360px;
+      background:#fff;
+      border:1.5px solid #1b5e20;
+      border-radius:20px;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      box-shadow:0 0 10px rgba(0,0,0,.10);
+    }
 
-  .content{
-    padding:2mm 3mm 2mm 3mm !important;
-    overflow:hidden !important;
-  }
+    .card-front {
+      background-image: url('https://lh3.googleusercontent.com/d/1q4YD0eum9qjBncST5oZjEHsS7_duZAzT=w300');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      position: relative;
+    }
 
-  .front-flex{
-    gap:3mm !important;
-  }
+    .card-front .content {
+      background: rgba(255, 255, 255, 0.50);
+      border-radius: 0 0 20px 20px;
+    }
 
-  .photo{
-    width:23mm !important;
-    height:29mm !important;
-    object-fit:cover !important;
-    flex-shrink:0 !important;
-  }
+    .card-front .header {
+      background: rgba(27, 94, 32, 0.90);
+    }
 
-  .details{
-    font-size:7.5pt !important;
-    line-height:1.15 !important;
-    overflow:hidden !important;
-    padding-top:1mm !important;
-  }
+    .card-front .id-wrap {
+      background: rgba(255,255,255,0.55);
+      padding: 0px 15px 1px 15px;
+      backdrop-filter: blur(1px);
+    }
 
-  .details div{
-    margin-bottom:0 !important;
-  }
+    .card-front .bottom-note {
+      background: rgba(27, 94, 32, 0.92);
+    }
 
-  .name{
-    font-size:11pt !important;
-    line-height:1.3 !important;
-    padding-top:0.5mm !important;
-    white-space:nowrap !important;
-    overflow:hidden !important;
-    text-overflow:ellipsis !important;
-  }
+    .card-back {
+      background-image: url('https://lh3.googleusercontent.com/d/1jaHYw0th4DPPMXscYXdItoQzeknYAcIe=w300');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      position: relative;
+    }
 
-  .farmer-id{
-    height:10mm !important;
-    min-height:10mm !important;
-    max-height:10mm !important;
-    padding:1.5mm !important;
-    font-size:16pt !important;
-    line-height:1 !important;
-  }
+    .card-back .content {
+      background: rgba(255, 255, 255, 0.60);
+      border-radius: 0 0 20px 20px;
+    }
 
-  .address{
-    font-size:6.8pt !important;
-    line-height:1.0 !important;
-    margin-bottom:0.5mm !important;
-    margin-top:-1.5mm !important;
-    overflow:hidden !important;
-  }
+    .card-back .header {
+      background: rgba(27, 94, 32, 0.9);
+    }
 
-  .land-title{
-    font-size:7pt !important;
-    line-height:1 !important;
-    margin-bottom:0.8mm !important;
-    margin-top:0.5mm !important;
-  }
+    .header{
+      background:#1b5e20;
+      color:#fff;
+      padding:10px 15px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:18px;
+      font-weight:bold;
+    }
 
-  table{
-    width:100% !important;
-    table-layout:fixed !important;
-    font-size:6pt !important;
-  }
+    .header img{
+      height:30px;
+      width:auto;
+      object-fit:contain;
+    }
 
-  th, td{
-    padding:0.6mm 0.4mm !important;
-    font-size:6pt !important;
-    line-height:1 !important;
-    white-space:nowrap !important;
-    overflow:hidden !important;
-    text-overflow:ellipsis !important;
-  }
+    .content{
+      padding:15px 15px 8px 15px;
+      flex:1;
+    }
 
-  .card, .card *{
-    break-inside:avoid;
-    page-break-inside:avoid;
-  }
-}
-</style>
+    .front-flex{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      margin-top:6px;
+    }
+
+    .photo{
+      width:120px;
+      height:145px;
+      border:1px solid #999;
+      object-fit:cover;
+      background:#f7f7f7;
+      flex-shrink:0;
+      margin-top:4px;
+      border: 2px solid rgb(27, 94, 32);
+      border-radius: 8px;
+    }
+
+    .details{
+      flex:1;
+      min-width:0;
+    }
+
+    .name{
+      font-size:24px;
+      font-weight:bold;
+      color:#1b5e20;
+      line-height:2.1;
+      margin-bottom:2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .name-en{
+      font-size:24px;
+      line-height:1.1;
+      margin-bottom:6px;
+      color:#222;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .detail-row{
+      font-size:17px;
+      line-height:1.4;
+      margin-bottom:4px;
+      word-break:break-word;
+      font-weight:500;
+    }
+
+    .detail-row b{
+      font-weight:700;
+      color:#1b5e20;
+    }
+
+    .qr-side{
+      width:130px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      flex-shrink:0;
+      margin-top:50px;
+    }
+
+    .qr-mini{
+      width:120px;
+      height:120px;
+      border:1px solid #bbb;
+      padding:4px;
+      background:#fff;
+      border-radius:8px;
+    }
+
+    .qr-mini img,
+    .qr-mini canvas{
+      width:100%;
+      height:100%;
+      display:block;
+      image-rendering:pixelated;
+    }
+
+    .id-wrap{
+      padding:0 15px 10px 15px;
+      text-align:center;
+    }
+
+    .farmer-pill{
+      display:inline-block;
+      background:#ffffff;
+      border:2px solid #cbd5e1;
+      color:#0f172a;
+      font-size:24px;
+      font-weight:900;
+      padding:3px 18px;
+      border-radius:9999px;
+      box-shadow:0 4px 10px rgba(0,0,0,0.12);
+      letter-spacing:.3px;
+      line-height:1.2;
+      margin-bottom: 0;
+    }
+
+    .farmer-pill-num{
+      color:#071d08;
+      margin-left:4px;
+    }
+
+    .enrollment-line {
+      display: inline-block;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      color: #0f172a;
+      font-size: 17px;
+      font-weight: 400;
+      padding: 4px 18px;
+      border-radius: 9999px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+      letter-spacing: 0.2px;
+      line-height: 1.2;
+      margin-top: 0;
+    }
+
+    .enrollment-line span {
+      font-weight: 600;
+      color: #010702;
+    }
+
+    .bottom-note{
+      background:#1b5e20;
+      color:#fff;
+      text-align:center;
+      padding:10px 10px;
+      font-size:13px;
+      font-weight:500;
+      line-height:1.4;
+    }
+
+    .address{
+      font-size:15px;
+      line-height:1.3;
+      margin-bottom:3px;
+      font-weight:bold;
+      color:#1b5e20;
+    }
+
+    .land-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:5px;
+    }
+
+    .land-title{
+      font-size:16px;
+      font-weight:bold;
+      color:#1b5e20;
+    }
+
+    .total-area{
+      font-size:16px;
+      font-weight:bold;
+      color:#1b5e20;
+      background:rgba(27,94,32,0.08);
+      padding:2px 12px;
+      border-radius:12px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      table-layout:fixed;
+    }
+
+    th,td{
+      border:0.5px solid #ccc;
+      padding:6px 4px;
+      font-size:11px;
+      text-align:center;
+      vertical-align:top;
+      white-space:normal;
+      word-break:break-word;
+      overflow-wrap:anywhere;
+    }
+
+    th{
+      background:#e8f5e9;
+      font-weight:bold;
+    }
+
+    @media print{
+      @page{
+        size:A4 portrait;
+        margin:5mm;
+      }
+
+      html, body{
+        width:210mm;
+        height:297mm;
+        margin:0 !important;
+        padding:0 !important;
+        background:#fff !important;
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
+      }
+
+      .form-box{
+        display:none !important;
+      }
+
+      .card-container{
+        display:flex !important;
+        flex-direction:row !important;
+        flex-wrap:nowrap !important;
+        justify-content:flex-start !important;
+        align-items:flex-start !important;
+        gap:3mm !important;
+        width:100% !important;
+        margin:0 !important;
+        padding:0 !important;
+      }
+
+      .card{
+        width:96mm !important;
+        height:62mm !important;
+        min-height:62mm !important;
+        max-height:62mm !important;
+        margin:0 !important;
+        flex:0 0 auto !important;
+        overflow:hidden !important;
+        box-shadow:none !important;
+        border:0.35mm solid #1b5e20 !important;
+        border-radius:4mm !important;
+        page-break-inside:avoid;
+        break-inside:avoid;
+      }
+
+      .card-front {
+        background-image: url('https://lh3.googleusercontent.com/d/1q4YD0eum9qjBncST5oZjEHsS7_duZAzT=w300') !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-repeat: no-repeat !important;
+      }
+
+      .card-front .content {
+        background: rgba(255, 255, 255, 0.50) !important;
+      }
+      .card-front .header {
+        background: rgba(27, 94, 32, 0.92) !important;
+      }
+      .card-front .id-wrap {
+        background: rgba(255,255,255,0.55) !important;
+        padding: 0mm 2.5mm 1.5mm 2.5mm !important;
+      }
+      
+      .card-front .bottom-note {
+        background: rgba(27, 94, 32, 0.92) !important;
+        height: 7mm !important;
+        min-height: 7mm !important;
+        max-height: 7mm !important;
+        padding: 0mm 2mm !important;
+        font-size: 6.5pt !important;
+        font-weight: 500 !important;
+        line-height: 1.1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+      }
+
+      .card-back {
+        background-image: url('https://lh3.googleusercontent.com/d/1jaHYw0th4DPPMXscYXdItoQzeknYAcIe=w300') !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-repeat: no-repeat !important;
+      }
+
+      .card-back .content {
+        background: rgba(255, 255, 255, 0.60) !important;
+      }
+
+      .card-back .header {
+        background: rgba(27, 94, 32, 0.92) !important;
+      }
+
+      .header{
+        height:10mm !important;
+        min-height:10mm !important;
+        max-height:10mm !important;
+        padding:1.5mm 2.5mm !important;
+        font-size:8pt !important;
+        line-height:1 !important;
+      }
+
+      .header img{
+        height:7mm !important;
+      }
+
+      .content{
+        padding:2mm 2.5mm 1mm 2.5mm !important;
+        overflow:hidden !important;
+      }
+
+      .front-flex{
+        gap:2mm !important;
+        align-items:flex-start !important;
+        margin-top:0.5mm !important;
+      }
+
+      .photo{
+        width:20mm !important;
+        height:25mm !important;
+        border:0.2mm solid #888 !important;
+        margin-top:1.2mm !important;
+        border: 2px solid rgb(27, 94, 32) !important;
+        border-radius: 8px !important;
+      }
+
+      .details{
+        flex:1 !important;
+        min-width:0 !important;
+        overflow:hidden !important;
+      }
+
+      .name{
+        font-size:8.5pt !important;
+        line-height:2.02 !important;
+        margin-bottom:0.3mm !important;
+      }
+
+      .name-en{
+        font-size:9pt !important;
+        line-height:1 !important;
+        margin-bottom:0.5mm !important;
+      }
+
+      .detail-row{
+        font-size:7pt !important;
+        line-height:1.2 !important;
+        margin-bottom:0.6mm !important;
+        font-weight:500 !important;
+      }
+
+      .detail-row b{
+        font-weight:700 !important;
+      }
+
+      .qr-side{
+        width:24mm !important;
+        display:flex !important;
+        align-items:flex-start !important;
+        justify-content:center !important;
+        flex-shrink:0 !important;
+        margin-top:2.5mm !important;
+      }
+
+      .qr-mini{
+        width:21mm !important;
+        height:21mm !important;
+        padding:0.5mm !important;
+        border:0.2mm solid #aaa !important;
+        border-radius:2.2mm !important;
+      }
+
+      .id-wrap{
+        padding:0 2.5mm 1mm 2.5mm !important;
+        text-align:center !important;
+      }
+
+      .farmer-pill{
+        display:inline-block !important;
+        background:#fff !important;
+        border:0.35mm solid #cbd5e1 !important;
+        color:#111827 !important;
+        font-size:11pt !important;
+        font-weight:900 !important;
+        padding:0.5mm 4mm !important;
+        border-radius:999px !important;
+        box-shadow:none !important;
+        letter-spacing:0.1px !important;
+        line-height:1.1 !important;
+        margin-bottom: 0 !important;
+      }
+
+      .farmer-pill-num{
+        color:#071b08 !important;
+        margin-left:1mm !important;
+      }
+
+      .enrollment-line {
+        display: inline-block !important;
+        background: #fff !important;
+        border: 0.35mm solid #cbd5e1 !important;
+        color: #0f172a !important;
+        font-size: 8pt !important;
+        font-weight: 400 !important;
+        padding: 1mm 3mm !important;
+        border-radius: 999px !important;
+        box-shadow: none !important;
+        letter-spacing: 0.1px !important;
+        line-height: 1.1 !important;
+        margin-top: 0 !important;
+      }
+
+      .enrollment-line span {
+        font-weight: 600 !important;
+        color: #010702 !important;
+      }
+
+      .address{
+        font-size:6.8pt !important;
+        line-height:1.0 !important;
+        margin-bottom:0.6mm !important;
+        margin-top:-0.5mm !important;
+        overflow:hidden !important;
+      }
+
+      .land-header{
+        display:flex !important;
+        justify-content:space-between !important;
+        align-items:center !important;
+        margin-bottom:0.6mm !important;
+        margin-top:0.4mm !important;
+      }
+
+      .land-title{
+        font-size:7pt !important;
+        font-weight:bold !important;
+        color:#1b5e20 !important;
+      }
+
+      .total-area{
+        font-size:7pt !important;
+        font-weight:bold !important;
+        color:#1b5e20 !important;
+        background:rgba(27,94,32,0.08) !important;
+        padding:0.5mm 3mm !important;
+        border-radius:3mm !important;
+      }
+
+      table{
+        width:100% !important;
+        table-layout:fixed !important;
+      }
+
+      th, td{
+        padding:0.45mm 0.25mm !important;
+        font-size:6pt !important;
+        line-height:1 !important;
+        white-space:nowrap !important;
+        overflow:hidden !important;
+        text-overflow:ellipsis !important;
+        border:0.15mm solid #aaa !important;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<div class="form-box">
-<h2>AgriStack Data Paste Here</h2>
-<textarea id="rawData" placeholder="Paste farmer registration data here..."></textarea>
-<br><br>
-<label for="genderSelect"><b>Gender:</b></label><br>
-<select id="genderSelect">
-  <option value="">Select</option>
-  <option value="Male">Male</option>
-  <option value="Female">Female</option>
-</select>
-<br><br>
-<input type="file" id="photoInput" accept="image/*">
-<img id="photoPreview" style="display:none;max-width:130px;max-height:160px;margin-top:10px;">
-<br>
-<button onclick="generateCard()">Generate Card</button>
-<button onclick="window.print()">Print</button>
-</div>
+  <div class="form-box">
+    <h2>AgriStack Data Paste Here</h2>
+    <textarea id="rawData" placeholder="Paste farmer registration data here..."></textarea>
+    <br><br>
 
-<div class="card-container" id="cards"></div>
+    <label for="genderSelect"><b>Gender:</b></label><br>
+    <select id="genderSelect">
+      <option value="">Select</option>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+    </select>
+    <br><br>
 
-<script>
-document.getElementById("photoInput").addEventListener("change",function(e){
-  const file=e.target.files[0];
-  if(file){
-    const reader=new FileReader();
-    reader.onload=function(ev){
-      const preview=document.getElementById("photoPreview");
-      preview.src=ev.target.result;
-      preview.style.display="block";
-    };
-    reader.readAsDataURL(file);
-  }
-});
+    <input type="file" id="photoInput" accept="image/*">
+    <img id="photoPreview" style="display:none;max-width:130px;max-height:160px;margin-top:10px;">
+    <br>
 
-function getLineAfter(lines, label){
-  for(let i=0;i<lines.length;i++){
-    if(lines[i].trim().toLowerCase() === label.toLowerCase()){
-      return (lines[i+1] || "").trim();
+    <button onclick="generateCard()">Generate Card</button>
+    <button onclick="window.print()">Print</button>
+  </div>
+
+  <div class="card-container" id="cards"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    document.getElementById("photoInput").addEventListener("change", function(e){
+      const file = e.target.files[0];
+      if(file){
+        const reader = new FileReader();
+        reader.onload = function(ev){
+          const preview = document.getElementById("photoPreview");
+          preview.src = ev.target.result;
+          preview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function normalizeText(text){
+      return String(text || "")
+        .replace(/\r/g, "")
+        .replace(/\u00A0/g, " ")
+        .trim();
     }
-    if(lines[i].toLowerCase().includes(label.toLowerCase())){
-      return (lines[i+1] || "").trim();
+
+    function findValueByLabels(lines, labels){
+      for(let i = 0; i < lines.length; i++){
+        const current = normalizeText(lines[i]);
+        const currentLower = current.toLowerCase();
+
+        for(const label of labels){
+          const labelLower = label.toLowerCase();
+
+          if(currentLower.includes(labelLower) && current.includes(":")){
+            const parts = current.split(":");
+            if(parts.length > 1){
+              const left = parts[0].trim().toLowerCase();
+              if(left.includes(labelLower) || left === labelLower){
+                const val = normalizeText(parts.slice(1).join(":"));
+                if(val && !val.toLowerCase().includes("enter") && !val.toLowerCase().includes("select") && !val.toLowerCase().includes("verified")){
+                  return val;
+                }
+              }
+            }
+          }
+
+          if(currentLower === labelLower || currentLower === labelLower + ":") {
+            if(i + 1 < lines.length) {
+              const next = normalizeText(lines[i + 1]);
+              if(next && !next.toLowerCase().includes("verified") && 
+                 !next.toLowerCase().includes("reset") &&
+                 !next.toLowerCase().includes("enter") &&
+                 !next.toLowerCase().includes("select") &&
+                 !next.toLowerCase().includes("insert")){
+                return next;
+              }
+            }
+          }
+        }
+      }
+      return "";
     }
-  }
-  return "";
-}
 
-function getFarmerId(lines){
-  for(let i=0;i<lines.length;i++){
-    if(lines[i].trim().toLowerCase() === "farmer id"){
-      return (lines[i-1] || lines[i+1] || "").trim();
+    function getFatherName(lines){
+      let fatherEnglish = "";
+      let fatherHindi = "";
+      
+      for(let i=0;i<lines.length;i++){
+        const line = lines[i];
+        const lower = line.toLowerCase();
+        
+        if(lower.includes("identifier name in english") || lower.includes("identifier name (english)")){
+          if(line.includes(":")){
+            const val = line.split(":").slice(1).join(":").trim();
+            if(val && !val.toLowerCase().includes("enter") && !val.toLowerCase().includes("select")){
+              fatherEnglish = val;
+            }
+          } else if(i+1 < lines.length){
+            const next = lines[i+1].trim();
+            if(next && !next.toLowerCase().includes("identifier") && !next.toLowerCase().includes("enter")){
+              fatherEnglish = next;
+            }
+          }
+        }
+        
+        if(lower.includes("identifier name in local language") || lower.includes("identifier name (local)")){
+          if(line.includes(":")){
+            const val = line.split(":").slice(1).join(":").trim();
+            if(val && !val.toLowerCase().includes("enter") && !val.toLowerCase().includes("select")){
+              fatherHindi = val;
+            }
+          } else if(i+1 < lines.length){
+            const next = lines[i+1].trim();
+            if(next && !next.toLowerCase().includes("identifier") && !next.toLowerCase().includes("enter")){
+              fatherHindi = next;
+            }
+          }
+        }
+      }
+      
+      return { fatherEnglish, fatherHindi };
     }
-  }
-  return "";
-}
 
-function generateCard(){
-  let data=document.getElementById("rawData").value;
-  const lines=data.split("\n").map(l=>l.trim()).filter(l=>l!=="");
-  let cardsContainer=document.getElementById("cards");
-  cardsContainer.innerHTML="";
-
-  let photoSrc="https://via.placeholder.com/130x160?text=Photo";
-  const preview=document.getElementById("photoPreview");
-  if(preview.style.display==="block"){
-    photoSrc=preview.src;
-  }
-
-  let farmerId=getFarmerId(lines);
-  let aadhaar=getLineAfter(lines,"Aadhaar Number");
-  let mobile=getLineAfter(lines,"Mobile Number");
-  let dob=getLineAfter(lines,"Date Of Birth");
-  let genderValue=document.getElementById("genderSelect").value;
-  if(!genderValue) genderValue=getLineAfter(lines,"Gender");
-
-  let farmerEnglish="Farmer Name";
-  let farmerHindi="किसान का नाम";
-  for(let i=0;i<lines.length;i++){
-    if(lines[i].includes("Farmer Name as per Aadhar in English")) farmerEnglish=lines[i+1]?.trim() || farmerEnglish;
-    if(lines[i].includes("Farmer Name in Local Language")) farmerHindi=lines[i+1]?.trim() || farmerHindi;
-  }
-
-  let village="", tehsil="", district="", state="", pin="";
-  for(let i=0;i<lines.length;i++){
-    let t=lines[i].toLowerCase();
-    if(t==="address in english" || t.startsWith("address in english:")){
-      let addr=lines[i].includes(":") ? lines[i].split(":")[1].trim() : (lines[i+1] || "").trim();
-      if(addr) village=addr.replace(/,$/,"").trim();
-      break;
+    function getFarmerId(lines){
+      for(let i=0;i<lines.length;i++){
+        const line = lines[i];
+        if(line.toLowerCase().includes("farmer id") && !line.toLowerCase().includes("enrollment")){
+          if(line.includes(":")){
+            const val = line.split(":").slice(1).join(":").trim();
+            if(val && /^\d+$/.test(val) && val.length >= 10){
+              return val;
+            }
+          } else if(i+1 < lines.length){
+            const next = lines[i+1].trim();
+            if(next && /^\d+$/.test(next) && next.length >= 10 && !next.includes('_')){
+              return next;
+            }
+          }
+        }
+      }
+      
+      for(let i=0;i<lines.length;i++){
+        const line = lines[i];
+        if(line.includes('_')){
+          continue;
+        }
+        const match = line.match(/\b(\d{10,12})\b/);
+        if(match && match[1]){
+          const aadhaar = findValueByLabels(lines, ["Aadhaar Number", "Aadhar Number"]);
+          if(match[1] !== aadhaar.replace(/\s/g, '')){
+            return match[1];
+          }
+        }
+      }
+      return "";
     }
-  }
-  for(let i=0;i<lines.length;i++){
-    let t=lines[i].toLowerCase();
-    if(t==="pin code" || t.startsWith("pin code:")){
-      pin=lines[i].includes(":") ? lines[i].split(":")[1].trim() : (lines[i+1] || "").trim();
-      break;
-    }
-  }
-  for(let i=0;i<lines.length;i++){
-    if(lines[i].trim().toUpperCase()==="UTTAR PRADESH"){
-      state="UTTAR PRADESH";
-      district=lines[i+1] || "";
-      tehsil=lines[i+2] || "";
-      break;
-    }
-  }
 
-  let addressHTML=
-    "<b>Village:</b> " + (village || "N/A") + ", " +
-    "<b>Tehsil:</b> " + (tehsil || "N/A") + ", " +
-    "<b>District:</b> " + (district || "N/A") + ", " +
-    "<b>State:</b> " + (state || "N/A") + ", " +
-    "<b>Pin:</b> " + (pin || "N/A");
+    function getEnrollmentId(lines){
+      for(let i=0;i<lines.length;i++){
+        const line = lines[i];
+        const match = line.match(/\b(\d+_\d+_\d+_\d+_\d+)\b/);
+        if(match && match[1]){
+          return match[1];
+        }
+      }
+      
+      for(let i=0;i<lines.length;i++){
+        const line = lines[i];
+        if(line.toLowerCase().includes("farmer enrollment") || line.toLowerCase().includes("enrollment id")){
+          if(line.includes(":")){
+            const val = line.split(":").slice(1).join(":").trim();
+            if(val && val.includes('_')){
+              return val;
+            }
+          } else if(i+1 < lines.length){
+            const next = lines[i+1].trim();
+            if(next && next.includes('_')){
+              return next;
+            }
+          }
+        }
+      }
+      return "";
+    }
 
-  let entries=[];
-  for(let i=0;i<lines.length;i++){
-    if(lines[i].trim().toUpperCase()==="UTTAR PRADESH"){
-      let dist=lines[i+1] || "";
-      let tehsil2=lines[i+2] || "";
-      let village2=lines[i+3] || "";
-      let khasra=lines[i+4] || "";
-      let area="";
-      for(let j=i+4;j<i+20 && j<lines.length;j++){
-        if(/^\d+\.\d+$/.test(lines[j])){
-          area=lines[j];
+    function escapeHtml(text){
+      return String(text || "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+    }
+
+    function computeTotalArea(entries){
+      let total = 0;
+      for(let e of entries){
+        const a = parseFloat(e.area);
+        if(!isNaN(a)) total += a;
+      }
+      return total.toFixed(3);
+    }
+
+    function generateCard(){
+      const data = document.getElementById("rawData").value;
+      if(!data.trim()){
+        alert("Please paste farmer data first!");
+        return;
+      }
+      
+      const lines = data.split("\n").map(l => normalizeText(l)).filter(Boolean);
+      const cardsContainer = document.getElementById("cards");
+      cardsContainer.innerHTML = "";
+
+      let photoSrc = "https://via.placeholder.com/130x160?text=Photo";
+      const preview = document.getElementById("photoPreview");
+      if(preview.style.display === "block" && preview.src){
+        photoSrc = preview.src;
+      }
+
+      let farmerId = getFarmerId(lines);
+      let enrollmentId = getEnrollmentId(lines);
+      let aadhaar = findValueByLabels(lines, ["Aadhaar Number", "Aadhar Number"]);
+      let mobile = findValueByLabels(lines, ["Mobile Number", "Mobile"]);
+      let dob = findValueByLabels(lines, ["Date Of Birth", "DOB"]);
+      let genderValue = document.getElementById("genderSelect").value || findValueByLabels(lines, ["Gender"]);
+
+      const father = getFatherName(lines);
+      let fatherEnglish = father.fatherEnglish || "N/A";
+      let fatherHindi = father.fatherHindi || "N/A";
+
+      let village = "", tehsil = "", district = "", state = "", pin = "";
+      
+      const addressEn = findValueByLabels(lines, ["Address In English", "Address in English"]);
+      if(addressEn && !addressEn.toLowerCase().includes("enter")) {
+        village = addressEn.replace(/,$/, '').trim();
+      }
+      
+      for(let i = 0; i < lines.length; i++){
+        if(lines[i] === "UTTAR PRADESH"){
+          state = lines[i];
+          if(i + 1 < lines.length && lines[i+1] && !lines[i+1].match(/^\d+$/)){
+            district = lines[i+1];
+          }
+          if(i + 2 < lines.length && lines[i+2] && !lines[i+2].match(/^\d+$/)){
+            tehsil = lines[i+2];
+          }
           break;
         }
       }
-      if(dist && tehsil2 && village2 && khasra){
-        entries.push({dist, tehsil:tehsil2, village:village2, khasra, area});
+      
+      if(!state) state = findValueByLabels(lines, ["State"]);
+      if(!district) district = findValueByLabels(lines, ["District"]);
+      if(!tehsil) tehsil = findValueByLabels(lines, ["Sub District", "Sub District/Taluka", "Tehsil"]);
+      
+      pin = findValueByLabels(lines, ["PIN Code", "Pincode", "PIN"]);
+      if(!pin || pin.toLowerCase().includes("enter")){
+        for(let i=0; i<lines.length; i++){
+          const match = lines[i].match(/\b(262802|262\d{3}|2\d{5}|[0-9]{6})\b/);
+          if(match && match[1] && match[1].length === 6){
+            pin = match[1];
+            break;
+          }
+        }
+      }
+
+      let farmerEnglish = "Farmer Name";
+      let farmerHindi = "किसान का नाम";
+
+      for(let i=0;i<lines.length;i++){
+        const line = lines[i];
+        const lower = line.toLowerCase();
+        
+        if(lower.includes("farmer name as per aadhar in english")){
+          if(line.includes(":")){
+            const val = line.split(":").slice(1).join(":").trim();
+            if(val) farmerEnglish = val;
+          } else if(i+1 < lines.length && lines[i+1].trim() && !lines[i+1].toLowerCase().includes("farmer")){
+            farmerEnglish = lines[i+1].trim();
+          }
+        }
+
+        if(lower.includes("farmer name in local language")){
+          if(line.includes(":")){
+            const val = line.split(":").slice(1).join(":").trim();
+            if(val) farmerHindi = val;
+          } else if(i+1 < lines.length && lines[i+1].trim() && !lines[i+1].toLowerCase().includes("farmer")){
+            farmerHindi = lines[i+1].trim();
+          }
+        }
+      }
+
+      let entries = [];
+      
+      for(let i=0;i<lines.length;i++){
+        if(lines[i].trim() === "UTTAR PRADESH"){
+          let dist = i+1 < lines.length ? lines[i+1] : "";
+          let tehsil2 = i+2 < lines.length ? lines[i+2] : "";
+          let village2 = i+3 < lines.length ? lines[i+3] : "";
+          let khasra = i+4 < lines.length ? lines[i+4] : "";
+          let area = "";
+
+          for(let j=i+4; j<Math.min(i+20, lines.length); j++){
+            if(/^\d+\.\d+$/.test(lines[j]) && lines[j] !== "0.000000" && lines[j] !== "0.000"){
+              area = lines[j];
+              break;
+            }
+          }
+
+          if(dist && tehsil2 && village2 && khasra && 
+              !dist.includes("Verified") && !tehsil2.includes("Verified") &&
+              !village2.includes("Verified") && !khasra.includes("Verified") &&
+              /^\d+$/.test(khasra)){
+            
+            entries.push({
+              dist: dist,
+              tehsil: tehsil2,
+              village: village2,
+              khasra: khasra,
+              area: area || "0.000"
+            });
+          }
+        }
+      }
+
+      const totalArea = computeTotalArea(entries);
+
+      let addressHTML =
+        "<b>Village:</b> " + escapeHtml(village || "N/A") + ", " +
+        "<b>Tehsil:</b> " + escapeHtml(tehsil || "N/A") + ", " +
+        "<b>District:</b> " + escapeHtml(district || "N/A") + ", " +
+        "<b>State:</b> " + escapeHtml(state || "N/A") + ", " +
+        "<b>Pin:</b> " + escapeHtml(pin || "N/A");
+
+      let landRows = "";
+      for(let e of entries){
+        landRows += `
+          <tr>
+            <td>${escapeHtml(e.dist)}</td>
+            <td>${escapeHtml(e.tehsil)}</td>
+            <td>${escapeHtml(e.village)}</td>
+            <td>${escapeHtml(e.khasra)}</td>
+            <td>${escapeHtml(e.area)}</td>
+          </tr>
+        `;
+      }
+
+      if(!landRows){
+        landRows = "<tr><td colspan='5'>No land data found</td></tr>";
+      }
+
+      const qrId = "qr_" + Date.now();
+
+      const qrData = JSON.stringify({
+        farmerId: farmerId || "N/A",
+        name: farmerEnglish || "N/A",
+        fatherName: fatherEnglish || "N/A",
+        dob: dob || "N/A",
+        gender: genderValue || "N/A",
+        mobile: mobile || "N/A",
+        aadhaar: aadhaar || "N/A",
+        totalArea: totalArea || "0.000"
+      });
+
+      cardsContainer.innerHTML = `
+        <div class="card card-front">
+          <div class="header">
+            <div><img src="https://drive.google.com/thumbnail?id=1R5VPGeoeZkU_j6hNauokr7AjSMLYFJAd&sz=w200" alt="AgriStack Logo"></div>
+            <div><img src="https://drive.google.com/thumbnail?id=1Q3yP5MYoU9W7Y23dUnG8DMdeVhZXXdQZ&sz=w200" alt="Farmer Card Logo"></div>
+          </div>
+
+          <div class="content">
+            <div class="front-flex">
+              <img class="photo" src="${photoSrc}" alt="Farmer Photo">
+
+              <div class="details">
+                <div class="name">${escapeHtml(farmerHindi)}</div>
+                <div class="name-en">${escapeHtml(farmerEnglish)}</div>
+                <div class="detail-row"><b>C/O:</b> ${escapeHtml(fatherHindi)} (${escapeHtml(fatherEnglish)})</div>
+                <div class="detail-row"><b>DOB:</b> ${escapeHtml(dob || "N/A")}</div>
+                <div class="detail-row"><b>Gender:</b> ${escapeHtml(genderValue || "N/A")}</div>
+                <div class="detail-row"><b>Mobile:</b> ${escapeHtml(mobile || "N/A")}</div>
+                <div class="detail-row"><b>Aadhaar:</b> ${escapeHtml(aadhaar || "N/A")}</div>
+              </div>
+
+              <div class="qr-side">
+                <div class="qr-mini" id="${qrId}"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="id-wrap">
+            <div class="farmer-pill">
+              Farmer Id: <span class="farmer-pill-num">${escapeHtml(farmerId || "N/A")}</span>
+            </div>
+            ${enrollmentId ? `<div class="enrollment-line">Enrollment Id: <span>${escapeHtml(enrollmentId)}</span></div>` : ''}
+          </div>
+
+          <div class="bottom-note">यह कार्ड फार्मर रजिस्ट्री के डेटा पर आधारित है। यह सरकार द्वारा जारी किया गया कार्ड नहीं है।</div>
+        </div>
+
+        <div class="card card-back">
+          <div class="header">
+            <div>Address / पता</div>
+            <div><img src="https://drive.google.com/thumbnail?id=1R5VPGeoeZkU_j6hNauokr7AjSMLYFJAd&sz=w200" alt="Logo"></div>
+          </div>
+
+          <div class="content">
+            <div class="address">${addressHTML}</div>
+            
+            <div class="land-header">
+              <div class="land-title">Land Details / भूमि विवरण</div>
+              <div class="total-area">Total Area: ${escapeHtml(totalArea)}</div>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Dist</th>
+                  <th>Tehsil</th>
+                  <th>Village</th>
+                  <th>Khasra</th>
+                  <th>Area</th>
+                </tr>
+              </thead>
+              <tbody>${landRows}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      cardsContainer.style.display = "flex";
+
+      try{
+        new QRCode(document.getElementById(qrId), {
+          text: qrData,
+          width: 116,
+          height: 116,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }catch(err){
+        document.getElementById(qrId).innerHTML =
+          "<div style='font-size:11px;text-align:center;padding-top:24px;'>QR Error</div>";
+        console.error(err);
       }
     }
-  }
-
-  let landRows="";
-  for(let e of entries){
-    landRows += `<tr><td>${e.dist}</td><td>${e.tehsil}</td><td>${e.village}</td><td>${e.khasra}</td><td>${e.area}</td></tr>`;
-  }
-  if(landRows===""){
-    landRows="<tr><td colspan='5'>No land data found</td></tr>";
-  }
-
-  const landFontSize = entries.length <= 1 ? "16px" :
-                       entries.length === 2 ? "14px" :
-                       entries.length === 3 ? "12px" :
-                       entries.length === 4 ? "10px" :
-                       entries.length === 5 ? "9px" : "8px";
-
-  let cardHTML=`
-  <div class="card">
-    <div class="header">
-      <div><img src="https://drive.google.com/thumbnail?id=1R5VPGeoeZkU_j6hNauokr7AjSMLYFJAd&sz=w200" alt="AgriStack Logo"></div>
-      <div><img src="https://drive.google.com/thumbnail?id=1Q3yP5MYoU9W7Y23dUnG8DMdeVhZXXdQZ&sz=w200" alt="Farmer Card Logo"></div>
-    </div>
-    <div class="content">
-      <div class="front-flex">
-        <img class="photo" src="${photoSrc}">
-        <div class="details">
-          <div class="name">${farmerHindi}</div>
-          <div>${farmerEnglish}</div>
-          <div>DOB: <span>${dob || "N/A"}</span></div>
-          <div>Gender: <span>${genderValue || "N/A"}</span></div>
-          <div>Mobile: <span>${mobile || "N/A"}</span></div>
-          <div>Aadhaar: <span>${aadhaar || "N/A"}</span></div>
-        </div>
-      </div>
-    </div>
-    <div class="farmer-id">Farmer ID : <span>${farmerId || "N/A"}</span></div>
-  </div>
-
-  <div class="card">
-    <div class="header">
-      <div>Address / पता</div>
-      <div><img src="https://drive.google.com/thumbnail?id=1R5VPGeoeZkU_j6hNauokr7AjSMLYFJAd&sz=w200" alt="Logo"></div>
-    </div>
-    <div class="content">
-      <div class="address">${addressHTML}</div>
-      <div class="land-title">Land Details / भूमि विवरण</div>
-      <table style="font-size:${landFontSize};">
-        <thead>
-          <tr>
-            <th>Dist</th>
-            <th>Tehsil</th>
-            <th>Village</th>
-            <th>Khasra</th>
-            <th>Area</th>
-          </tr>
-        </thead>
-        <tbody>${landRows}</tbody>
-      </table>
-    </div>
-  </div>
-  `;
-
-  cardsContainer.innerHTML=cardHTML;
-  cardsContainer.style.display="flex";
-}
-</script>
-
+  </script>
 </body>
 </html>
