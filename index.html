@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AgriStack Farmer Card · QR with all fields</title>
+  <title>🌱AgriStack Farmer Card</title>
   <style>
     *{
       margin:0;
@@ -662,7 +662,7 @@
               const left = parts[0].trim().toLowerCase();
               if(left.includes(labelLower) || left === labelLower){
                 const val = normalizeText(parts.slice(1).join(":"));
-                if(val && !val.toLowerCase().includes("enter") && !val.toLowerCase().includes("select") && !val.toLowerCase().includes("verified")){
+                if(val && !val.toLowerCase().includes("enter") && !val.toLowerCase().includes("select") && !val.toLowerCase().includes("verified") && !val.toLowerCase().includes("pending")){
                   return val;
                 }
               }
@@ -676,7 +676,10 @@
                  !next.toLowerCase().includes("reset") &&
                  !next.toLowerCase().includes("enter") &&
                  !next.toLowerCase().includes("select") &&
-                 !next.toLowerCase().includes("insert")){
+                 !next.toLowerCase().includes("insert") &&
+                 !next.toLowerCase().includes("pending") &&
+                 !next.toLowerCase().includes("re-ekyc") &&
+                 !next.toLowerCase().includes("download")){
                 return next;
               }
             }
@@ -806,6 +809,319 @@
       return total.toFixed(3);
     }
 
+    function parseLandEntries(lines){
+      const entries = [];
+      
+      // Try to parse the new tabular format
+      let tableStart = -1;
+      for(let i = 0; i < lines.length; i++){
+        const line = lines[i];
+        if(line.includes("State/UT") && line.includes("District") && line.includes("Sub District") && line.includes("Village") && line.includes("Survey Number")){
+          tableStart = i;
+          break;
+        }
+      }
+      
+      if(tableStart !== -1){
+        let rowStart = tableStart + 1;
+        while(rowStart < lines.length){
+          const row = lines[rowStart];
+          if(row && row.length > 5 && !row.toLowerCase().includes("farmer") && !row.toLowerCase().includes("total") && !row.toLowerCase().includes("note:")){
+            const parts = row.split(/\t+/);
+            if(parts.length >= 16){
+              const state = parts[0]?.trim() || "";
+              const district = parts[1]?.trim() || "";
+              const tehsil = parts[2]?.trim() || "";
+              const village = parts[3]?.trim() || "";
+              const survey = parts[4]?.trim() || "";
+              const area = parts[15]?.trim() || parts[13]?.trim() || parts[12]?.trim() || "0.000";
+              
+              if(state && district && tehsil && village && survey && /^\d+$/.test(survey)){
+                entries.push({
+                  state: state,
+                  dist: district,
+                  tehsil: tehsil,
+                  village: village,
+                  khasra: survey,
+                  area: area
+                });
+              }
+            } else if(parts.length >= 5){
+              const state = parts[0]?.trim() || "";
+              const district = parts[1]?.trim() || "";
+              const tehsil = parts[2]?.trim() || "";
+              const village = parts[3]?.trim() || "";
+              const survey = parts[4]?.trim() || "";
+              let area = "0.000";
+              for(let k = 5; k < parts.length; k++){
+                if(/^\d+\.\d+$/.test(parts[k]) && parts[k] !== "0.000000" && parts[k] !== "0.000"){
+                  area = parts[k];
+                  break;
+                }
+              }
+              
+              if(state && district && tehsil && village && survey && /^\d+$/.test(survey)){
+                entries.push({
+                  state: state,
+                  dist: district,
+                  tehsil: tehsil,
+                  village: village,
+                  khasra: survey,
+                  area: area
+                });
+              }
+            }
+            rowStart++;
+          } else {
+            break;
+          }
+        }
+        
+        if(entries.length > 0){
+          return entries;
+        }
+      }
+      
+      // Try old format
+      for(let i = 0; i < lines.length; i++){
+        const line = lines[i];
+        if(line === "UTTAR PRADESH" || line === "State" || line === "State/UT"){
+          let dist = "", tehsil = "", village = "", khasra = "", area = "";
+          
+          let idx = i + 1;
+          while(idx < lines.length && (lines[idx].toLowerCase().includes("farmer") || lines[idx].toLowerCase().includes("total") || lines[idx].toLowerCase().includes("note:"))){
+            idx++;
+          }
+          if(idx < lines.length && !lines[idx].match(/^\d+$/) && !lines[idx].includes("_") && !lines[idx].toLowerCase().includes("verified")){
+            dist = lines[idx];
+          }
+          
+          idx++;
+          while(idx < lines.length && (lines[idx].toLowerCase().includes("farmer") || lines[idx].toLowerCase().includes("total") || lines[idx].toLowerCase().includes("note:"))){
+            idx++;
+          }
+          if(idx < lines.length && !lines[idx].match(/^\d+$/) && !lines[idx].includes("_") && !lines[idx].toLowerCase().includes("verified")){
+            tehsil = lines[idx];
+          }
+          
+          idx++;
+          while(idx < lines.length && (lines[idx].toLowerCase().includes("farmer") || lines[idx].toLowerCase().includes("total") || lines[idx].toLowerCase().includes("note:"))){
+            idx++;
+          }
+          if(idx < lines.length && !lines[idx].match(/^\d+$/) && !lines[idx].includes("_") && !lines[idx].toLowerCase().includes("verified")){
+            village = lines[idx];
+          }
+          
+          idx++;
+          while(idx < lines.length && (lines[idx].toLowerCase().includes("farmer") || lines[idx].toLowerCase().includes("total") || lines[idx].toLowerCase().includes("note:"))){
+            idx++;
+          }
+          if(idx < lines.length && /^\d+$/.test(lines[idx])){
+            khasra = lines[idx];
+          }
+          
+          for(let j = idx+1; j < Math.min(idx+15, lines.length); j++){
+            if(/^\d+\.\d+$/.test(lines[j]) && lines[j] !== "0.000000" && lines[j] !== "0.000"){
+              area = lines[j];
+              break;
+            }
+          }
+          
+          if(dist && tehsil && village && khasra && /^\d+$/.test(khasra)){
+            entries.push({
+              state: "UTTAR PRADESH",
+              dist: dist,
+              tehsil: tehsil,
+              village: village,
+              khasra: khasra,
+              area: area || "0.000"
+            });
+          }
+        }
+      }
+      
+      return entries;
+    }
+
+    function extractAddressDetails(lines){
+      let village = "", tehsil = "", district = "", state = "", pin = "";
+      
+      // FIRST: Look for Residential Details section
+      let inResidential = false;
+      let foundState = false;
+      let foundVillage = false;
+      
+      for(let i = 0; i < lines.length; i++){
+        const line = lines[i];
+        if(line.toLowerCase().includes("residential details")){
+          inResidential = true;
+          continue;
+        }
+        if(inResidential && line && !line.toLowerCase().includes("residential") && !line.toLowerCase().includes("insert") && !line.toLowerCase().includes("farmer") && !line.toLowerCase().includes("address in")){
+          
+          // Check for State/UT
+          if(line === "UTTAR PRADESH" || line === "State/UT" || line === "State" || line === "UTTAR PRADESH"){
+            state = "UTTAR PRADESH";
+            foundState = true;
+            
+            // Get District (next valid line)
+            let idx = i + 1;
+            while(idx < lines.length && (lines[idx].toLowerCase().includes("farmer") || lines[idx].toLowerCase().includes("total") || lines[idx].toLowerCase().includes("note:") || lines[idx].match(/^\d+$/) || lines[idx].includes("_") || lines[idx].toLowerCase().includes("verified") || lines[idx].toLowerCase().includes("enter"))){
+              idx++;
+            }
+            if(idx < lines.length && !lines[idx].toLowerCase().includes("sub district") && !lines[idx].toLowerCase().includes("taluka") && !lines[idx].toLowerCase().includes("pin")){
+              district = lines[idx];
+            }
+            
+            // Get Sub District/Taluka
+            idx++;
+            while(idx < lines.length && (lines[idx].toLowerCase().includes("farmer") || lines[idx].toLowerCase().includes("total") || lines[idx].toLowerCase().includes("note:") || lines[idx].match(/^\d+$/) || lines[idx].includes("_") || lines[idx].toLowerCase().includes("verified") || lines[idx].toLowerCase().includes("enter"))){
+              idx++;
+            }
+            if(idx < lines.length && !lines[idx].toLowerCase().includes("district") && !lines[idx].toLowerCase().includes("pin") && !lines[idx].toLowerCase().includes("village")){
+              tehsil = lines[idx];
+            }
+            
+            // Get Village
+            idx++;
+            while(idx < lines.length && (lines[idx].toLowerCase().includes("farmer") || lines[idx].toLowerCase().includes("total") || lines[idx].toLowerCase().includes("note:") || lines[idx].match(/^\d+$/) || lines[idx].includes("_") || lines[idx].toLowerCase().includes("verified") || lines[idx].toLowerCase().includes("enter"))){
+              idx++;
+            }
+            if(idx < lines.length && !lines[idx].toLowerCase().includes("sub district") && !lines[idx].toLowerCase().includes("taluka") && !lines[idx].toLowerCase().includes("pin") && !lines[idx].toLowerCase().includes("district")){
+              village = lines[idx];
+              foundVillage = true;
+            }
+            break;
+          }
+        }
+      }
+      
+      // SECOND: If village not found, get from Address In English
+      if(!foundVillage || !village || village.toLowerCase().includes("sub district") || village.toLowerCase().includes("taluka")){
+        const addressEn = findValueByLabels(lines, ["Address In English", "Address in English"]);
+        if(addressEn && !addressEn.toLowerCase().includes("enter")) {
+          let cleanAddr = addressEn.replace(/,$/, '').trim();
+          if(cleanAddr && !cleanAddr.toLowerCase().includes("sub district") && !cleanAddr.toLowerCase().includes("taluka") && !cleanAddr.toLowerCase().includes("address")){
+            village = cleanAddr;
+            foundVillage = true;
+          }
+        }
+      }
+      
+      // THIRD: If still no village, try to find from Residential Details lines
+      if(!foundVillage){
+        let inResidential2 = false;
+        for(let i = 0; i < lines.length; i++){
+          const line = lines[i];
+          if(line.toLowerCase().includes("residential details")){
+            inResidential2 = true;
+            continue;
+          }
+          if(inResidential2 && line && !line.toLowerCase().includes("residential") && !line.toLowerCase().includes("insert") && !line.toLowerCase().includes("farmer") && !line.toLowerCase().includes("address in") && !line.toLowerCase().includes("state/ut") && !line.toLowerCase().includes("district") && !line.toLowerCase().includes("sub district") && !line.toLowerCase().includes("pin")){
+            // Check if this looks like a village name (not a number, not containing special chars, not a label)
+            const cleanLine = line.trim();
+            if(cleanLine && cleanLine.length > 1 && !cleanLine.match(/^\d+$/) && !cleanLine.includes('_') && !cleanLine.toLowerCase().includes('verified') && !cleanLine.toLowerCase().includes('enter')){
+              // Check if it's a valid village name
+              if(!state && (cleanLine === "UTTAR PRADESH" || cleanLine === "State/UT")){
+                state = "UTTAR PRADESH";
+                continue;
+              }
+              if(!district && !cleanLine.toLowerCase().includes('taluka') && !cleanLine.toLowerCase().includes('sub district')){
+                district = cleanLine;
+                continue;
+              }
+              if(!tehsil && !cleanLine.toLowerCase().includes('district') && !cleanLine.toLowerCase().includes('village')){
+                tehsil = cleanLine;
+                continue;
+              }
+              if(!village && !cleanLine.toLowerCase().includes('taluka') && !cleanLine.toLowerCase().includes('sub district') && !cleanLine.toLowerCase().includes('district') && !cleanLine.toLowerCase().includes('pin')){
+                village = cleanLine;
+                break;
+              }
+            }
+          }
+        }
+      }
+      
+      // FOURTH: Try from Land Details
+      if(!state || !district || !tehsil || !village){
+        let inLandDetails = false;
+        for(let i = 0; i < lines.length; i++){
+          const line = lines[i];
+          if(line.toLowerCase().includes("land details") || line.toLowerCase().includes("land ownership")){
+            inLandDetails = true;
+            continue;
+          }
+          if(inLandDetails && (line === "UTTAR PRADESH" || line === "State" || line === "State/UT")){
+            if(!state) state = "UTTAR PRADESH";
+            let idx = i + 1;
+            while(idx < lines.length && (lines[idx].toLowerCase().includes("farmer") || lines[idx].toLowerCase().includes("total") || lines[idx].toLowerCase().includes("note:") || lines[idx].toLowerCase().includes("survey") || lines[idx].match(/^\d+$/))){
+              idx++;
+            }
+            if(idx < lines.length && !lines[idx].toLowerCase().includes("verified") && !lines[idx].toLowerCase().includes("area") && !lines[idx].toLowerCase().includes("sub district")){
+              if(!district) district = lines[idx];
+            }
+            idx++;
+            while(idx < lines.length && (lines[idx].toLowerCase().includes("farmer") || lines[idx].toLowerCase().includes("total") || lines[idx].toLowerCase().includes("note:") || lines[idx].toLowerCase().includes("survey") || lines[idx].match(/^\d+$/))){
+              idx++;
+            }
+            if(idx < lines.length && !lines[idx].toLowerCase().includes("verified") && !lines[idx].toLowerCase().includes("area") && !lines[idx].toLowerCase().includes("village")){
+              if(!tehsil) tehsil = lines[idx];
+            }
+            idx++;
+            while(idx < lines.length && (lines[idx].toLowerCase().includes("farmer") || lines[idx].toLowerCase().includes("total") || lines[idx].toLowerCase().includes("note:") || lines[idx].toLowerCase().includes("survey") || lines[idx].match(/^\d+$/))){
+              idx++;
+            }
+            if(idx < lines.length && !lines[idx].toLowerCase().includes("verified") && !lines[idx].toLowerCase().includes("area") && !lines[idx].toLowerCase().includes("pin")){
+              if(!village) village = lines[idx];
+            }
+            break;
+          }
+        }
+      }
+      
+      // FIFTH: Try findValueByLabels
+      if(!state) state = findValueByLabels(lines, ["State", "State/UT"]);
+      if(!district) district = findValueByLabels(lines, ["District"]);
+      if(!tehsil) tehsil = findValueByLabels(lines, ["Sub District", "Sub District/Taluka", "Tehsil"]);
+      
+      // Get PIN
+      pin = findValueByLabels(lines, ["PIN Code", "Pincode", "PIN"]);
+      if(!pin || pin.toLowerCase().includes("enter")){
+        for(let i=0; i<lines.length; i++){
+          const match = lines[i].match(/\b(262802|262\d{3}|2\d{5}|[0-9]{6})\b/);
+          if(match && match[1] && match[1].length === 6){
+            pin = match[1];
+            break;
+          }
+        }
+      }
+      
+      // Clean up: Remove label text from values
+      const removePatterns = ["Sub District/Taluka", "Sub District", "Taluka", "State/UT", "District", "Village", "PIN Code"];
+      for(let pattern of removePatterns){
+        if(village && village.toLowerCase().includes(pattern.toLowerCase())){
+          village = "";
+        }
+        if(tehsil && tehsil.toLowerCase().includes(pattern.toLowerCase())){
+          tehsil = "";
+        }
+        if(district && district.toLowerCase().includes(pattern.toLowerCase())){
+          district = "";
+        }
+      }
+      
+      // If village is empty but we have address from Address In English, use that
+      if(!village){
+        const addr = findValueByLabels(lines, ["Address In English", "Address in English"]);
+        if(addr && !addr.toLowerCase().includes("enter")){
+          village = addr.replace(/,$/, '').trim();
+        }
+      }
+      
+      return { village, tehsil, district, state, pin };
+    }
+
     function generateCard(){
       const data = document.getElementById("rawData").value;
       if(!data.trim()){
@@ -834,40 +1150,13 @@
       let fatherEnglish = father.fatherEnglish || "N/A";
       let fatherHindi = father.fatherHindi || "N/A";
 
-      let village = "", tehsil = "", district = "", state = "", pin = "";
-      
-      const addressEn = findValueByLabels(lines, ["Address In English", "Address in English"]);
-      if(addressEn && !addressEn.toLowerCase().includes("enter")) {
-        village = addressEn.replace(/,$/, '').trim();
-      }
-      
-      for(let i = 0; i < lines.length; i++){
-        if(lines[i] === "UTTAR PRADESH"){
-          state = lines[i];
-          if(i + 1 < lines.length && lines[i+1] && !lines[i+1].match(/^\d+$/)){
-            district = lines[i+1];
-          }
-          if(i + 2 < lines.length && lines[i+2] && !lines[i+2].match(/^\d+$/)){
-            tehsil = lines[i+2];
-          }
-          break;
-        }
-      }
-      
-      if(!state) state = findValueByLabels(lines, ["State"]);
-      if(!district) district = findValueByLabels(lines, ["District"]);
-      if(!tehsil) tehsil = findValueByLabels(lines, ["Sub District", "Sub District/Taluka", "Tehsil"]);
-      
-      pin = findValueByLabels(lines, ["PIN Code", "Pincode", "PIN"]);
-      if(!pin || pin.toLowerCase().includes("enter")){
-        for(let i=0; i<lines.length; i++){
-          const match = lines[i].match(/\b(262802|262\d{3}|2\d{5}|[0-9]{6})\b/);
-          if(match && match[1] && match[1].length === 6){
-            pin = match[1];
-            break;
-          }
-        }
-      }
+      // Extract address details using the improved function
+      const addressDetails = extractAddressDetails(lines);
+      let village = addressDetails.village;
+      let tehsil = addressDetails.tehsil;
+      let district = addressDetails.district;
+      let state = addressDetails.state;
+      let pin = addressDetails.pin;
 
       let farmerEnglish = "Farmer Name";
       let farmerHindi = "किसान का नाम";
@@ -876,76 +1165,72 @@
         const line = lines[i];
         const lower = line.toLowerCase();
         
-        if(lower.includes("farmer name as per aadhar in english")){
+        if(lower.includes("farmer name as per aadhar in english") || lower.includes("farmer name in english")){
           if(line.includes(":")){
             const val = line.split(":").slice(1).join(":").trim();
-            if(val) farmerEnglish = val;
+            if(val && !val.toLowerCase().includes("enter")) farmerEnglish = val;
           } else if(i+1 < lines.length && lines[i+1].trim() && !lines[i+1].toLowerCase().includes("farmer")){
             farmerEnglish = lines[i+1].trim();
           }
         }
 
-        if(lower.includes("farmer name in local language")){
+        if(lower.includes("farmer name in local language") || lower.includes("farmer name (local)")){
           if(line.includes(":")){
             const val = line.split(":").slice(1).join(":").trim();
-            if(val) farmerHindi = val;
+            if(val && !val.toLowerCase().includes("enter")) farmerHindi = val;
           } else if(i+1 < lines.length && lines[i+1].trim() && !lines[i+1].toLowerCase().includes("farmer")){
             farmerHindi = lines[i+1].trim();
           }
         }
       }
 
-      let entries = [];
-      
-      for(let i=0;i<lines.length;i++){
-        if(lines[i].trim() === "UTTAR PRADESH"){
-          let dist = i+1 < lines.length ? lines[i+1] : "";
-          let tehsil2 = i+2 < lines.length ? lines[i+2] : "";
-          let village2 = i+3 < lines.length ? lines[i+3] : "";
-          let khasra = i+4 < lines.length ? lines[i+4] : "";
-          let area = "";
-
-          for(let j=i+4; j<Math.min(i+20, lines.length); j++){
-            if(/^\d+\.\d+$/.test(lines[j]) && lines[j] !== "0.000000" && lines[j] !== "0.000"){
-              area = lines[j];
-              break;
-            }
-          }
-
-          if(dist && tehsil2 && village2 && khasra && 
-              !dist.includes("Verified") && !tehsil2.includes("Verified") &&
-              !village2.includes("Verified") && !khasra.includes("Verified") &&
-              /^\d+$/.test(khasra)){
-            
-            entries.push({
-              dist: dist,
-              tehsil: tehsil2,
-              village: village2,
-              khasra: khasra,
-              area: area || "0.000"
-            });
-          }
-        }
-      }
-
+      let entries = parseLandEntries(lines);
       const totalArea = computeTotalArea(entries);
 
-      let addressHTML =
-        "<b>Village:</b> " + escapeHtml(village || "N/A") + ", " +
-        "<b>Tehsil:</b> " + escapeHtml(tehsil || "N/A") + ", " +
-        "<b>District:</b> " + escapeHtml(district || "N/A") + ", " +
-        "<b>State:</b> " + escapeHtml(state || "N/A") + ", " +
-        "<b>Pin:</b> " + escapeHtml(pin || "N/A");
+      // Build address HTML - ensure proper formatting with kaima as village
+      let addressHTML = "";
+      
+      // If village is empty or contains label text, try to get from Address In English
+      if(!village || village.toLowerCase().includes("sub district") || village.toLowerCase().includes("taluka")){
+        const addr = findValueByLabels(lines, ["Address In English", "Address in English"]);
+        if(addr && !addr.toLowerCase().includes("enter")){
+          village = addr.replace(/,$/, '').trim();
+        }
+      }
+      
+      if(village && !village.toLowerCase().includes("sub district") && !village.toLowerCase().includes("taluka") && !village.toLowerCase().includes("address")){
+        addressHTML = "<b>Village:</b> " + escapeHtml(village);
+        if(tehsil && !tehsil.toLowerCase().includes("sub district") && !tehsil.toLowerCase().includes("taluka") && !tehsil.toLowerCase().includes("district")){
+          addressHTML += ", <b>Tehsil:</b> " + escapeHtml(tehsil);
+        }
+        if(district && !district.toLowerCase().includes("sub district") && !district.toLowerCase().includes("taluka") && !district.toLowerCase().includes("village")){
+          addressHTML += ", <b>District:</b> " + escapeHtml(district);
+        }
+        if(state && !state.toLowerCase().includes("state/ut") && !state.toLowerCase().includes("district")){
+          addressHTML += ", <b>State:</b> " + escapeHtml(state);
+        }
+        if(pin && !pin.toLowerCase().includes("pin")){
+          addressHTML += ", <b>Pin:</b> " + escapeHtml(pin);
+        }
+      } else {
+        // Try to get address from Address In English
+        const addr = findValueByLabels(lines, ["Address In English", "Address in English"]);
+        if(addr && !addr.toLowerCase().includes("enter")){
+          addressHTML = escapeHtml(addr);
+        } else {
+          addressHTML = "<b>Address:</b> Not available";
+        }
+      }
 
       let landRows = "";
       for(let e of entries){
         landRows += `
           <tr>
-            <td>${escapeHtml(e.dist)}</td>
-            <td>${escapeHtml(e.tehsil)}</td>
-            <td>${escapeHtml(e.village)}</td>
-            <td>${escapeHtml(e.khasra)}</td>
-            <td>${escapeHtml(e.area)}</td>
+            <td>${escapeHtml(e.dist || e.state || "N/A")}</td>
+            <td>${escapeHtml(e.tehsil || "N/A")}</td>
+            <td>${escapeHtml(e.village || "N/A")}</td>
+            <td>${escapeHtml(e.khasra || "N/A")}</td>
+            <td>${escapeHtml(e.area || "0.000")}</td>
           </tr>
         `;
       }
